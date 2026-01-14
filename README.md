@@ -294,5 +294,8 @@ src/
 - **Protected**: Create, update, delete categories and products
 - **User-specific**: All cart operations tied to authenticated user
 
+# Project documentation Here, http://localhost:3000/api-docs
+
+
 ## License
 Patrick

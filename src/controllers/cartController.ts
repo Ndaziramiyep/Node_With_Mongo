@@ -56,7 +56,7 @@ export const updateItem = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Cart not found' });
     }
     
-    const item = cart.items.id(id);
+    const item = cart.items.find(item => item._id?.toString() === id);
     if (!item) {
       return res.status(404).json({ error: 'Item not found' });
     }

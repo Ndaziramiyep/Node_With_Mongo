@@ -295,4 +295,4 @@ src/
 - **User-specific**: All cart operations tied to authenticated user
 
 ## License
-MIT
+Patrick

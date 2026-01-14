@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICartItem {
+  _id?: string;
   product: string;
   quantity: number;
 }
@@ -16,7 +17,7 @@ const CartItemSchema: Schema = new Schema({
 });
 
 const CartSchema: Schema = new Schema({
-  userId: { type: String, required: true, unique: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   items: [CartItemSchema]
 }, { timestamps: true });
 

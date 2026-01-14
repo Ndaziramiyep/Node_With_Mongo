@@ -1,21 +1,12 @@
-import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { Response } from 'express';
+import { AuthRequest } from '../middlewares/authenticate';
 import Cart from '../models/Cart';
 
-export const getAllCarts = async (req: Request, res: Response) => {
+export const getCart = async (req: AuthRequest, res: Response) => {
   try {
-    const carts = await Cart.find();
-    res.json(carts);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch carts' });
-  }
-};
-
-export const getCart = async (req: Request, res: Response) => {
-  try {
-    const cart = await Cart.findOne({ userId: req.params.userId });
+    let cart = await Cart.findOne({ userId: req.userId });
     if (!cart) {
-      return res.status(404).json({ error: 'Cart not found' });
+      cart = await Cart.create({ userId: req.userId, items: [] });
     }
     res.json(cart);
   } catch (error) {
@@ -23,62 +14,89 @@ export const getCart = async (req: Request, res: Response) => {
   }
 };
 
-export const createCart = async (req: Request, res: Response) => {
+export const addItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { items } = req.body;
+    const { product, quantity } = req.body;
     
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Items array is required' });
+    if (!product || !quantity || quantity < 1) {
+      return res.status(400).json({ error: 'Valid product and quantity required' });
     }
     
-    const userId = uuidv4();
+    let cart = await Cart.findOne({ userId: req.userId });
     
-    const itemsWithIds = items.map((item: any) => ({
-      product: item.product,
-      quantity: item.quantity
-    }));
+    if (!cart) {
+      cart = await Cart.create({ userId: req.userId, items: [{ product, quantity }] });
+    } else {
+      const existingItem = cart.items.find(item => item.product === product);
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.items.push({ product, quantity });
+      }
+      await cart.save();
+    }
     
-    const cart = new Cart({ userId, items: itemsWithIds });
-    await cart.save();
     res.status(201).json(cart);
-  } catch (error: any) {
-    console.error('Create cart error:', error);
-    res.status(500).json({ error: 'Failed to create cart' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add item' });
   }
 };
 
-export const updateCart = async (req: Request, res: Response) => {
+export const updateItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId } = req.params;
-    const { items } = req.body;
+    const { id } = req.params;
+    const { quantity } = req.body;
     
-    const cart = await Cart.findOneAndUpdate(
-      { userId },
-      { items },
-      { new: true }
-    );
+    if (!quantity || quantity < 1) {
+      return res.status(400).json({ error: 'Valid quantity required' });
+    }
     
+    const cart = await Cart.findOne({ userId: req.userId });
     if (!cart) {
       return res.status(404).json({ error: 'Cart not found' });
     }
+    
+    const item = cart.items.id(id);
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    item.quantity = quantity;
+    await cart.save();
     
     res.json(cart);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update cart' });
+    res.status(500).json({ error: 'Failed to update item' });
   }
 };
 
-export const deleteCart = async (req: Request, res: Response) => {
+export const removeItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId } = req.params;
+    const { id } = req.params;
     
-    const cart = await Cart.findOneAndDelete({ userId });
+    const cart = await Cart.findOne({ userId: req.userId });
     if (!cart) {
       return res.status(404).json({ error: 'Cart not found' });
     }
     
-    res.json({ message: 'Cart deleted successfully' });
+    cart.items = cart.items.filter(item => item._id?.toString() !== id);
+    await cart.save();
+    
+    res.json(cart);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete cart' });
+    res.status(500).json({ error: 'Failed to remove item' });
+  }
+};
+
+export const clearCart = async (req: AuthRequest, res: Response) => {
+  try {
+    const cart = await Cart.findOneAndDelete({ userId: req.userId });
+    if (!cart) {
+      return res.status(404).json({ error: 'Cart not found' });
+    }
+    
+    res.json({ message: 'Cart cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear cart' });
   }
 };

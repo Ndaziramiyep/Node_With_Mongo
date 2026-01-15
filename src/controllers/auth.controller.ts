@@ -13,7 +13,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const user = await User.create({ email, password });
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
     
     res.status(201).json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {

@@ -13,8 +13,8 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Development server'
+        url: 'https://node-with-mongo-p4vc.onrender.com',
+        description: 'Production server'
       }
     ],
     components: {

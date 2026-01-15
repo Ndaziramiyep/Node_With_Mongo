@@ -10,8 +10,8 @@ const startServer = async () => {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
-      console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
+      console.log(`Server running at https://node-with-mongo-p4vc.onrender.com`);
+      console.log(`API Documentation available at https://node-with-mongo-p4vc.onrender.com/api-docs`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

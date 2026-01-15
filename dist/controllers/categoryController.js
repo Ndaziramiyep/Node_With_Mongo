@@ -43,9 +43,6 @@ const createCategory = async (req, res) => {
     }
     catch (error) {
         console.error('Create category error:', error);
-        if (error.code === 11000) {
-            return res.status(400).json({ error: 'Category name already exists' });
-        }
         res.status(500).json({ error: 'Failed to create category' });
     }
 };

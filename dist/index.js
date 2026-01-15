@@ -13,6 +13,7 @@ const startServer = async () => {
         await (0, database_1.connectDB)();
         app_1.default.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
+            console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
         });
     }
     catch (error) {

@@ -32,14 +32,25 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const CartItemSchema = new mongoose_1.Schema({
-    product: { type: String, required: true },
-    quantity: { type: Number, required: true, min: 1 }
-});
-const CartSchema = new mongoose_1.Schema({
-    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-    items: [CartItemSchema]
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const userSchema = new mongoose_1.Schema({
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    resetToken: String,
+    resetTokenExpiry: Date
 }, { timestamps: true });
-exports.default = mongoose_1.default.model('Cart', CartSchema, 'carts');
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password'))
+        return next();
+    this.password = await bcryptjs_1.default.hash(this.password, 10);
+    next();
+});
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcryptjs_1.default.compare(candidatePassword, this.password);
+};
+exports.default = mongoose_1.default.model('User', userSchema);

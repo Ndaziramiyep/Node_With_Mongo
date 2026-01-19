@@ -36,30 +36,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRole = void 0;
-const mongoose_1 = __importStar(require("mongoose"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-var UserRole;
-(function (UserRole) {
-    UserRole["ADMIN"] = "admin";
-    UserRole["VENDOR"] = "vendor";
-    UserRole["CUSTOMER"] = "customer";
-})(UserRole || (exports.UserRole = UserRole = {}));
-const userSchema = new mongoose_1.Schema({
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
-    isActive: { type: Boolean, default: true },
-    resetToken: String,
-    resetTokenExpiry: Date
-}, { timestamps: true });
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password'))
-        return next();
-    this.password = await bcryptjs_1.default.hash(this.password, 10);
-    next();
-});
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcryptjs_1.default.compare(candidatePassword, this.password);
+const mongoose_1 = __importDefault(require("mongoose"));
+const User_1 = __importStar(require("../models/User"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const createAdminUser = async () => {
+    try {
+        await mongoose_1.default.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/node_mongo_db');
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        const existingAdmin = await User_1.default.findOne({ email: adminEmail });
+        if (existingAdmin) {
+            console.log('Admin user already exists');
+            process.exit(0);
+        }
+        const adminUser = await User_1.default.create({
+            email: adminEmail,
+            password: adminPassword,
+            role: User_1.UserRole.ADMIN
+        });
+        console.log('Admin user created successfully:', adminUser.email);
+        process.exit(0);
+    }
+    catch (error) {
+        console.error('Error creating admin user:', error);
+        process.exit(1);
+    }
 };
-exports.default = mongoose_1.default.model('User', userSchema);
+createAdminUser();

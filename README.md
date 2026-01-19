@@ -6,7 +6,8 @@ Node.js REST API with MongoDB, TypeScript, and JWT Authentication
 - Role-based access control (Admin, Vendor, Customer)
 - Category management (Admin only)
 - Product management (Admin and Vendor)
-- Shopping cart functionality (All authenticated users)
+- Shopping cart functionality (Customers)
+- Order management (Customers)
 - Password reset and management
 - Admin user management
 
@@ -269,6 +270,31 @@ DELETE /api/cart
 Authorization: Bearer <token>
 ```
 
+### Orders (Customer Only)
+
+#### Create Order
+```http
+POST /api/orders
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "shippingAddress": "123 Main St, City, State 12345"
+}
+```
+
+#### Get User Orders
+```http
+GET /api/orders
+Authorization: Bearer <token>
+```
+
+#### Get Order by ID
+```http
+GET /api/orders/:id
+Authorization: Bearer <token>
+```
+
 ## Project Structure
 
 ```
@@ -287,13 +313,15 @@ src/
 │   ├── User.ts
 │   ├── Category.ts
 │   ├── Product.ts
-│   └── Cart.ts
+│   ├── Cart.ts
+│   └── Order.ts
 ├── routes/
 │   ├── auth.ts
 │   ├── users.ts
 │   ├── categoryRoutes.ts
 │   ├── productRoutes.ts
-│   └── cartRoutes.ts
+│   ├── cartRoutes.ts
+│   └── orderRoutes.ts
 ├── app.ts                   # Express app setup
 └── index.ts                 # Server entry point
 ```
@@ -308,15 +336,15 @@ src/
 
 ## Access Control
 - **Public**: View categories and products
-- **No Role**: Users register without roles and need admin assignment
-- **Customer**: Access cart operations after role assignment
-- **Vendor**: Create, update, delete products after role assignment
+- **Customer**: Default role for new registrations, access cart and order operations
+- **Vendor**: Create, update, delete products (admin assigned)
 - **Admin**: Full access to all operations including user role management
 
 ## Initial Setup
 1. Run `npm run create-admin` to create the first admin user
-2. Use admin credentials to login and assign roles to other users
-3. Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables (optional)
+2. Users register automatically as customers
+3. Admins can promote customers to vendors if needed
+4. Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables (optional)
 
 # Project documentation Here, http://localhost:3000/api-docs
 

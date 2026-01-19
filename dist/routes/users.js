@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const users_controller_1 = require("../controllers/users.controller");
 const authenticate_1 = require("../middlewares/authenticate");
+const adminAuth_1 = require("../middlewares/adminAuth");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -61,4 +62,52 @@ router.post('/change-password', authenticate_1.authenticate, users_controller_1.
  *         description: Logged out successfully
  */
 router.post('/logout', authenticate_1.authenticate, users_controller_1.logout);
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all users (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Admin access required
+ */
+router.get('/', authenticate_1.authenticate, adminAuth_1.adminAuth, users_controller_1.getAllUsers);
+/**
+ * @swagger
+ * /api/users/{userId}/role:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update user role (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [admin, vendor, customer]
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       403:
+ *         description: Admin access required
+ */
+router.put('/:userId/role', authenticate_1.authenticate, adminAuth_1.adminAuth, users_controller_1.updateUserRole);
 exports.default = router;

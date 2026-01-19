@@ -20,7 +20,7 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
-  role: { type: String, enum: Object.values(UserRole) },
+  role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
   isActive: { type: Boolean, default: true },
   resetToken: String,
   resetTokenExpiry: Date

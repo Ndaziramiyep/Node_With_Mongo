@@ -32,34 +32,29 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRole = void 0;
+exports.OrderStatus = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-var UserRole;
-(function (UserRole) {
-    UserRole["ADMIN"] = "admin";
-    UserRole["VENDOR"] = "vendor";
-    UserRole["CUSTOMER"] = "customer";
-})(UserRole || (exports.UserRole = UserRole = {}));
-const userSchema = new mongoose_1.Schema({
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
-    isActive: { type: Boolean, default: true },
-    resetToken: String,
-    resetTokenExpiry: Date
-}, { timestamps: true });
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password'))
-        return next();
-    this.password = await bcryptjs_1.default.hash(this.password, 10);
-    next();
+var OrderStatus;
+(function (OrderStatus) {
+    OrderStatus["PENDING"] = "pending";
+    OrderStatus["CONFIRMED"] = "confirmed";
+    OrderStatus["SHIPPED"] = "shipped";
+    OrderStatus["DELIVERED"] = "delivered";
+    OrderStatus["CANCELLED"] = "cancelled";
+})(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
+const orderItemSchema = new mongoose_1.Schema({
+    product: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Product', required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true, min: 1 }
 });
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcryptjs_1.default.compare(candidatePassword, this.password);
-};
-exports.default = mongoose_1.default.model('User', userSchema);
+const orderSchema = new mongoose_1.Schema({
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    items: [orderItemSchema],
+    totalAmount: { type: Number, required: true },
+    status: { type: String, enum: Object.values(OrderStatus), default: OrderStatus.PENDING },
+    shippingAddress: { type: String, required: true },
+    orderDate: { type: Date, default: Date.now }
+}, { timestamps: true });
+exports.default = mongoose_1.default.model('Order', orderSchema);

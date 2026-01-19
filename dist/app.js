@@ -10,6 +10,7 @@ const swagger_1 = require("./config/swagger");
 const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
 const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
+const orderRoutes_1 = __importDefault(require("./routes/orderRoutes"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const users_1 = __importDefault(require("./routes/users"));
 const admin_1 = __importDefault(require("./routes/admin"));
@@ -23,6 +24,7 @@ app.use('/api/admin', admin_1.default);
 app.use('/api/categories', categoryRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
 app.use('/api/cart', cartRoutes_1.default);
+app.use('/api/orders', orderRoutes_1.default);
 app.get('/', (req, res) => {
     res.json({ message: 'Node.js API with MongoDB is running!' });
 });

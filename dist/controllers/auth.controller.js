@@ -9,14 +9,22 @@ const crypto_1 = __importDefault(require("crypto"));
 const User_1 = __importDefault(require("../models/User"));
 const register = async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password } = req.body;
         const existingUser = await User_1.default.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
-        const user = await User_1.default.create({ email, password, role });
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
-        res.status(201).json({ token, user: { id: user._id, email: user.email, role: user.role } });
+        const user = await User_1.default.create({ email, password });
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+        res.status(201).json({
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                isActive: user.isActive
+            }
+        });
     }
     catch (error) {
         res.status(500).json({ message: 'Registration failed' });
@@ -30,8 +38,19 @@ const login = async (req, res) => {
         if (!user || !(await user.comparePassword(password))) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-        res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+        if (!user.isActive) {
+            return res.status(403).json({ message: 'Account is deactivated' });
+        }
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                isActive: user.isActive
+            }
+        });
     }
     catch (error) {
         res.status(500).json({ message: 'Login failed' });

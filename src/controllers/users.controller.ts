@@ -1,6 +1,6 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/authenticate';
-import User from '../models/User';
+import User, { UserRole } from '../models/User';
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
@@ -34,4 +34,38 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
 export const logout = (req: AuthRequest, res: Response) => {
   res.json({ message: 'Logged out successfully' });
+};
+
+export const getAllUsers = async (req: AuthRequest, res: Response) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+};
+
+export const updateUserRole = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    
+    if (!Object.values(UserRole).includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId, 
+      { role }, 
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User role updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user role' });
+  }
 };

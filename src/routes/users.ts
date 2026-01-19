@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { getProfile, changePassword, logout } from '../controllers/users.controller';
+import { getProfile, changePassword, logout, getAllUsers, updateUserRole } from '../controllers/users.controller';
 import { authenticate } from '../middlewares/authenticate';
+import { adminAuth } from '../middlewares/adminAuth';
 
 const router = Router();
 
@@ -63,5 +64,55 @@ router.post('/change-password', authenticate, changePassword);
  *         description: Logged out successfully
  */
 router.post('/logout', authenticate, logout);
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all users (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Admin access required
+ */
+router.get('/', authenticate, adminAuth, getAllUsers);
+
+/**
+ * @swagger
+ * /api/users/{userId}/role:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update user role (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [admin, vendor, customer]
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       403:
+ *         description: Admin access required
+ */
+router.put('/:userId/role', authenticate, adminAuth, updateUserRole);
 
 export default router;

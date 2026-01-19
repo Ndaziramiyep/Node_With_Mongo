@@ -5,7 +5,7 @@ import { UserRole } from '../models/User';
 export const authorize = (...roles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.userRole) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(403).json({ error: 'No role assigned. Contact admin for role assignment.' });
     }
 
     if (!roles.includes(req.userRole as UserRole)) {

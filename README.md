@@ -3,11 +3,12 @@ Node.js REST API with MongoDB, TypeScript, and JWT Authentication
 
 ## Features
 - User authentication with JWT
-- Category management
-- Product management
-- Shopping cart functionality
+- Role-based access control (Admin, Vendor, Customer)
+- Category management (Admin only)
+- Product management (Admin and Vendor)
+- Shopping cart functionality (All authenticated users)
 - Password reset and management
-- Role-based access control
+- Admin user management
 
 ## Tech Stack
 - Node.js
@@ -39,6 +40,9 @@ npm run build
 
 # Production
 npm start
+
+# Create first admin user (run once)
+npm run create-admin
 ```
 
 ## API Documentation
@@ -112,6 +116,25 @@ Content-Type: application/json
 ```http
 POST /api/users/logout
 Authorization: Bearer <token>
+```
+
+### Admin User Management (Admin Only)
+
+#### Get All Users
+```http
+GET /api/users
+Authorization: Bearer <admin_token>
+```
+
+#### Update User Role
+```http
+PUT /api/users/:userId/role
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+  "role": "vendor" // or "customer" or "admin"
+}
 ```
 
 ### Categories
@@ -285,8 +308,15 @@ src/
 
 ## Access Control
 - **Public**: View categories and products
-- **Protected**: Create, update, delete categories and products
-- **User-specific**: All cart operations tied to authenticated user
+- **No Role**: Users register without roles and need admin assignment
+- **Customer**: Access cart operations after role assignment
+- **Vendor**: Create, update, delete products after role assignment
+- **Admin**: Full access to all operations including user role management
+
+## Initial Setup
+1. Run `npm run create-admin` to create the first admin user
+2. Use admin credentials to login and assign roles to other users
+3. Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables (optional)
 
 # Project documentation Here, http://localhost:3000/api-docs
 

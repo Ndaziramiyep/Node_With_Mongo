@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { getCart, addItem, updateItem, removeItem, clearCart } from '../controllers/cartController';
 import { authenticate } from '../middlewares/authenticate';
+import { authorize } from '../middlewares/authorize';
+import { UserRole } from '../models/User';
 
 const router = Router();
 
@@ -18,7 +20,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/', authenticate, getCart);
+router.get('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), getCart);
 
 /**
  * @swagger
@@ -48,7 +50,7 @@ router.get('/', authenticate, getCart);
  *       400:
  *         description: Invalid input
  */
-router.post('/items', authenticate, addItem);
+router.post('/items', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), addItem);
 
 /**
  * @swagger
@@ -81,7 +83,7 @@ router.post('/items', authenticate, addItem);
  *       404:
  *         description: Item not found
  */
-router.put('/items/:id', authenticate, updateItem);
+router.put('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), updateItem);
 
 /**
  * @swagger
@@ -103,7 +105,7 @@ router.put('/items/:id', authenticate, updateItem);
  *       404:
  *         description: Item not found
  */
-router.delete('/items/:id', authenticate, removeItem);
+router.delete('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), removeItem);
 
 /**
  * @swagger
@@ -119,6 +121,6 @@ router.delete('/items/:id', authenticate, removeItem);
  *       404:
  *         description: Cart not found
  */
-router.delete('/', authenticate, clearCart);
+router.delete('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), clearCart);
 
 export default router;

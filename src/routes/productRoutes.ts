@@ -7,6 +7,8 @@ import {
   deleteProduct
 } from '../controllers/productController';
 import { authenticate } from '../middlewares/authenticate';
+import { authorize } from '../middlewares/authorize';
+import { UserRole } from '../models/User';
 
 const router = Router();
 
@@ -79,7 +81,7 @@ router.get('/:id', getProductById);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticate, createProduct);
+router.post('/', authenticate, authorize(UserRole.ADMIN, UserRole.VENDOR), createProduct);
 
 /**
  * @swagger
@@ -120,7 +122,7 @@ router.post('/', authenticate, createProduct);
  *       404:
  *         description: Product not found
  */
-router.put('/:id', authenticate, updateProduct);
+router.put('/:id', authenticate, authorize(UserRole.ADMIN, UserRole.VENDOR), updateProduct);
 
 /**
  * @swagger
@@ -142,6 +144,6 @@ router.put('/:id', authenticate, updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', authenticate, deleteProduct);
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN, UserRole.VENDOR), deleteProduct);
 
 export default router;

@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const productController_1 = require("../controllers/productController");
 const authenticate_1 = require("../middlewares/authenticate");
+const authorize_1 = require("../middlewares/authorize");
+const User_1 = require("../models/User");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -71,7 +73,7 @@ router.get('/:id', productController_1.getProductById);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticate_1.authenticate, productController_1.createProduct);
+router.post('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN, User_1.UserRole.VENDOR), productController_1.createProduct);
 /**
  * @swagger
  * /api/products/{id}:
@@ -111,7 +113,7 @@ router.post('/', authenticate_1.authenticate, productController_1.createProduct)
  *       404:
  *         description: Product not found
  */
-router.put('/:id', authenticate_1.authenticate, productController_1.updateProduct);
+router.put('/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN, User_1.UserRole.VENDOR), productController_1.updateProduct);
 /**
  * @swagger
  * /api/products/{id}:
@@ -132,5 +134,5 @@ router.put('/:id', authenticate_1.authenticate, productController_1.updateProduc
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', authenticate_1.authenticate, productController_1.deleteProduct);
+router.delete('/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN, User_1.UserRole.VENDOR), productController_1.deleteProduct);
 exports.default = router;

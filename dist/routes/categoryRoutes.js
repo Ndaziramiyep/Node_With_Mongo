@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const categoryController_1 = require("../controllers/categoryController");
 const authenticate_1 = require("../middlewares/authenticate");
+const authorize_1 = require("../middlewares/authorize");
+const User_1 = require("../models/User");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -61,7 +63,7 @@ router.get('/:id', categoryController_1.getCategoryById);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticate_1.authenticate, categoryController_1.createCategory);
+router.post('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), categoryController_1.createCategory);
 /**
  * @swagger
  * /api/categories/{id}:
@@ -93,7 +95,7 @@ router.post('/', authenticate_1.authenticate, categoryController_1.createCategor
  *       404:
  *         description: Category not found
  */
-router.put('/:id', authenticate_1.authenticate, categoryController_1.updateCategory);
+router.put('/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), categoryController_1.updateCategory);
 /**
  * @swagger
  * /api/categories/{id}:
@@ -114,5 +116,5 @@ router.put('/:id', authenticate_1.authenticate, categoryController_1.updateCateg
  *       404:
  *         description: Category not found
  */
-router.delete('/:id', authenticate_1.authenticate, categoryController_1.deleteCategory);
+router.delete('/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), categoryController_1.deleteCategory);
 exports.default = router;

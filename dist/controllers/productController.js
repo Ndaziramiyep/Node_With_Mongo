@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProduct = exports.updateProduct = exports.createProduct = exports.getProductById = exports.getProducts = void 0;
 const Product_1 = __importDefault(require("../models/Product"));
+const User_1 = require("../models/User");
 const getProducts = async (req, res) => {
     try {
         const products = await Product_1.default.find();
@@ -31,7 +32,6 @@ exports.getProductById = getProductById;
 const createProduct = async (req, res) => {
     try {
         const { name, price, description, category, inStock, quantity } = req.body;
-        // Check required fields
         if (!name || !category) {
             return res.status(400).json({ error: 'Name and category are required' });
         }
@@ -53,7 +53,8 @@ const createProduct = async (req, res) => {
             description,
             category,
             inStock: inStock !== undefined ? inStock : true,
-            quantity
+            quantity,
+            vendorId: req.userId
         });
         await product.save();
         res.status(201).json(product);
@@ -73,10 +74,21 @@ const updateProduct = async (req, res) => {
         if (quantity < 0) {
             return res.status(400).json({ error: 'Quantity cannot be negative' });
         }
-        const product = await Product_1.default.findByIdAndUpdate(req.params.id, { name, price, description, category, inStock, quantity }, { new: true });
+        const product = await Product_1.default.findById(req.params.id);
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
+        // Vendors can only update their own products
+        if (req.userRole === User_1.UserRole.VENDOR && product.vendorId !== req.userId) {
+            return res.status(403).json({ error: 'You can only update your own products' });
+        }
+        product.name = name || product.name;
+        product.price = price !== undefined ? price : product.price;
+        product.description = description !== undefined ? description : product.description;
+        product.category = category || product.category;
+        product.inStock = inStock !== undefined ? inStock : product.inStock;
+        product.quantity = quantity !== undefined ? quantity : product.quantity;
+        await product.save();
         res.json(product);
     }
     catch (error) {
@@ -86,10 +98,15 @@ const updateProduct = async (req, res) => {
 exports.updateProduct = updateProduct;
 const deleteProduct = async (req, res) => {
     try {
-        const product = await Product_1.default.findByIdAndDelete(req.params.id);
+        const product = await Product_1.default.findById(req.params.id);
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
+        // Vendors can only delete their own products
+        if (req.userRole === User_1.UserRole.VENDOR && product.vendorId !== req.userId) {
+            return res.status(403).json({ error: 'You can only delete your own products' });
+        }
+        await Product_1.default.findByIdAndDelete(req.params.id);
         res.json({ message: 'Product deleted successfully' });
     }
     catch (error) {

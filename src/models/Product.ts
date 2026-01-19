@@ -7,6 +7,7 @@ export interface IProduct extends Document {
   category: string;
   inStock: boolean;
   quantity: number;
+  vendorId: string;
 }
 
 const ProductSchema: Schema = new Schema({
@@ -15,7 +16,8 @@ const ProductSchema: Schema = new Schema({
   description: { type: String },
   category: { type: String, required: true },
   inStock: { type: Boolean, required: true, default: true },
-  quantity: { type: Number, required: true, default: 0, min: 0 }
+  quantity: { type: Number, required: true, default: 0, min: 0 },
+  vendorId: { type: String, required: true }
 }, { timestamps: true });
 
 export default mongoose.model<IProduct>('Product', ProductSchema);

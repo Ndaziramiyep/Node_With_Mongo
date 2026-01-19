@@ -32,15 +32,37 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const ProductSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
-    description: { type: String },
-    category: { type: String, required: true },
-    inStock: { type: Boolean, required: true, default: true },
-    quantity: { type: Number, required: true, default: 0, min: 0 },
-    vendorId: { type: String, required: true }
-}, { timestamps: true });
-exports.default = mongoose_1.default.model('Product', ProductSchema);
+const dotenv_1 = __importDefault(require("dotenv"));
+const database_1 = require("./config/database");
+const User_1 = __importStar(require("./models/User"));
+dotenv_1.default.config();
+const createAdmin = async () => {
+    try {
+        await (0, database_1.connectDB)();
+        const existingUser = await User_1.default.findOne({ email: 'patrickndaziramiye03@gmail.com' });
+        if (existingUser) {
+            console.log('Admin user already exists');
+            process.exit(0);
+        }
+        const admin = await User_1.default.create({
+            email: 'patrickndaziramiye03@gmail.com',
+            password: '1234',
+            role: User_1.UserRole.ADMIN
+        });
+        console.log('Admin user created successfully:', {
+            id: admin._id,
+            email: admin.email,
+            role: admin.role
+        });
+        process.exit(0);
+    }
+    catch (error) {
+        console.error('Error creating admin:', error);
+        process.exit(1);
+    }
+};
+createAdmin();

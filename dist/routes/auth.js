@@ -25,6 +25,10 @@ const router = (0, express_1.Router)();
  *               password:
  *                 type: string
  *                 format: password
+ *               role:
+ *                 type: string
+ *                 enum: [admin, vendor, customer]
+ *                 default: customer
  *     responses:
  *       201:
  *         description: User registered successfully

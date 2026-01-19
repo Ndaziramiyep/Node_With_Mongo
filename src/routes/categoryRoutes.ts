@@ -7,6 +7,8 @@ import {
   deleteCategory
 } from '../controllers/categoryController';
 import { authenticate } from '../middlewares/authenticate';
+import { authorize } from '../middlewares/authorize';
+import { UserRole } from '../models/User';
 
 const router = Router();
 
@@ -69,7 +71,7 @@ router.get('/:id', getCategoryById);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticate, createCategory);
+router.post('/', authenticate, authorize(UserRole.ADMIN), createCategory);
 
 /**
  * @swagger
@@ -102,7 +104,7 @@ router.post('/', authenticate, createCategory);
  *       404:
  *         description: Category not found
  */
-router.put('/:id', authenticate, updateCategory);
+router.put('/:id', authenticate, authorize(UserRole.ADMIN), updateCategory);
 
 /**
  * @swagger
@@ -124,6 +126,6 @@ router.put('/:id', authenticate, updateCategory);
  *       404:
  *         description: Category not found
  */
-router.delete('/:id', authenticate, deleteCategory);
+router.delete('/:id', authenticate, authorize(UserRole.ADMIN), deleteCategory);
 
 export default router;

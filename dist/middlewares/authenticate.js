@@ -13,6 +13,7 @@ const authenticate = (req, res, next) => {
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || 'secret');
         req.userId = decoded.userId;
+        req.userRole = decoded.role;
         next();
     }
     catch (error) {

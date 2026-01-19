@@ -1,7 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '../middlewares/authenticate';
 import Product from '../models/Product';
+import { UserRole } from '../models/User';
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: AuthRequest, res: Response) => {
   try {
     const products = await Product.find();
     res.json(products);
@@ -10,7 +12,7 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: AuthRequest, res: Response) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -22,11 +24,10 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { name, price, description, category, inStock, quantity } = req.body;
     
-    // Check required fields
     if (!name || !category) {
       return res.status(400).json({ error: 'Name and category are required' });
     }
@@ -53,7 +54,8 @@ export const createProduct = async (req: Request, res: Response) => {
       description,
       category,
       inStock: inStock !== undefined ? inStock : true,
-      quantity
+      quantity,
+      vendorId: req.userId
     });
     await product.save();
     res.status(201).json(product);
@@ -63,7 +65,7 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { name, price, description, category, inStock, quantity } = req.body;
     
@@ -75,26 +77,43 @@ export const updateProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Quantity cannot be negative' });
     }
     
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, price, description, category, inStock, quantity },
-      { new: true }
-    );
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
+    
+    // Vendors can only update their own products
+    if (req.userRole === UserRole.VENDOR && product.vendorId !== req.userId) {
+      return res.status(403).json({ error: 'You can only update your own products' });
+    }
+    
+    product.name = name || product.name;
+    product.price = price !== undefined ? price : product.price;
+    product.description = description !== undefined ? description : product.description;
+    product.category = category || product.category;
+    product.inStock = inStock !== undefined ? inStock : product.inStock;
+    product.quantity = quantity !== undefined ? quantity : product.quantity;
+    
+    await product.save();
     res.json(product);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update product' });
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: AuthRequest, res: Response) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
+    
+    // Vendors can only delete their own products
+    if (req.userRole === UserRole.VENDOR && product.vendorId !== req.userId) {
+      return res.status(403).json({ error: 'You can only delete your own products' });
+    }
+    
+    await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete product' });

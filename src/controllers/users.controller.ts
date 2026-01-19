@@ -69,3 +69,23 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Failed to update user role' });
   }
 };
+
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const { shippingAddress } = req.body;
+    
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { shippingAddress },
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update profile' });
+  }
+};

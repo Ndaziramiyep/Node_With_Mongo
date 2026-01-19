@@ -3,10 +3,21 @@ import { AuthRequest } from '../middlewares/authenticate';
 import Order, { OrderStatus } from '../models/Order';
 import Cart from '../models/Cart';
 import Product from '../models/Product';
+import User from '../models/User';
 
 export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const { shippingAddress } = req.body;
+    
+    let finalShippingAddress = shippingAddress;
+    
+    if (!finalShippingAddress) {
+      const user = await User.findById(req.userId);
+      if (!user?.shippingAddress) {
+        return res.status(400).json({ message: 'Shipping address is required' });
+      }
+      finalShippingAddress = user.shippingAddress;
+    }
     
     const cart = await Cart.findOne({ userId: req.userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
@@ -32,7 +43,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       user: req.userId,
       items: orderItems,
       totalAmount,
-      shippingAddress
+      shippingAddress: finalShippingAddress
     });
 
     await Cart.findOneAndUpdate({ userId: req.userId }, { items: [] });

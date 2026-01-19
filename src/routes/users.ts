@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile, changePassword, logout, getAllUsers, updateUserRole } from '../controllers/users.controller';
+import { getProfile, changePassword, logout, getAllUsers, updateUserRole, updateProfile } from '../controllers/users.controller';
 import { authenticate } from '../middlewares/authenticate';
 import { adminAuth } from '../middlewares/adminAuth';
 
@@ -20,6 +20,29 @@ const router = Router();
  *         description: Unauthorized
  */
 router.get('/profile', authenticate, getProfile);
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update user profile
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               shippingAddress:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.put('/profile', authenticate, updateProfile);
 
 /**
  * @swagger

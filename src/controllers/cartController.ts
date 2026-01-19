@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/authenticate';
 import Cart from '../models/Cart';
+import Product from '../models/Product';
 
 export const getCart = async (req: AuthRequest, res: Response) => {
   try {
@@ -22,22 +23,35 @@ export const addItem = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Valid product and quantity required' });
     }
     
+    let productId = product;
+    
+    // If product is not a valid ObjectId, try to find by name
+    if (!/^[0-9a-fA-F]{24}$/.test(product)) {
+      const foundProduct = await Product.findOne({ name: { $regex: product, $options: 'i' } });
+      if (!foundProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      productId = foundProduct._id;
+    }
+    
     let cart = await Cart.findOne({ user: req.userId });
     
     if (!cart) {
-      cart = await Cart.create({ user: req.userId, items: [{ product, quantity }] });
+      cart = await Cart.create({ user: req.userId, items: [{ product: productId, quantity }] });
     } else {
-      const existingItem = cart.items.find(item => item.product === product);
+      const existingItem = cart.items.find(item => item.product.toString() === productId.toString());
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
-        cart.items.push({ product, quantity });
+        cart.items.push({ product: productId, quantity });
       }
       await cart.save();
     }
     
-    res.status(201).json(cart);
+    const populatedCart = await Cart.findById(cart._id).populate('items.product');
+    res.status(201).json(populatedCart);
   } catch (error) {
+    console.error('Add item error:', error);
     res.status(500).json({ error: 'Failed to add item' });
   }
 };

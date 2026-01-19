@@ -42,6 +42,8 @@ router.get('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), getC
  *             properties:
  *               product:
  *                 type: string
+ *                 description: Product name or ObjectId
+ *                 example: "Phone Samsung Galaxy A70"
  *               quantity:
  *                 type: number
  *     responses:

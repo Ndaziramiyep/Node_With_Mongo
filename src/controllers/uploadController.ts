@@ -12,6 +12,7 @@ export const uploadProfileImage = async (req: AuthRequest, res: Response) => {
 
     const user = await User.findById(req.userId);
     if (!user) {
+      deleteFile(req.file.path);
       return res.status(404).json({ error: 'User not found' });
     }
 
@@ -24,6 +25,7 @@ export const uploadProfileImage = async (req: AuthRequest, res: Response) => {
 
     res.json({ message: 'Profile image uploaded', profileImage: user.profileImage });
   } catch (error) {
+    if (req.file) deleteFile(req.file.path);
     res.status(500).json({ error: 'Failed to upload profile image' });
   }
 };
@@ -39,6 +41,7 @@ export const uploadProductImages = async (req: AuthRequest, res: Response) => {
 
     const product = await Product.findById(productId);
     if (!product) {
+      files.forEach(file => deleteFile(file.path));
       return res.status(404).json({ error: 'Product not found' });
     }
 
@@ -48,6 +51,9 @@ export const uploadProductImages = async (req: AuthRequest, res: Response) => {
 
     res.json({ message: 'Product images uploaded', images: product.images });
   } catch (error) {
+    if (req.files) {
+      (req.files as Express.Multer.File[]).forEach(file => deleteFile(file.path));
+    }
     res.status(500).json({ error: 'Failed to upload product images' });
   }
 };

@@ -5,8 +5,21 @@ import { uploadProfileImage, uploadProductImages, deleteProductImage } from '../
 
 const router = Router();
 
-router.post('/profile', authenticate, upload.single('profileImage'), uploadProfileImage);
-router.post('/products/:productId', authenticate, upload.array('productImages', 5), uploadProductImages);
+// Handle multer errors
+const handleUploadError = (err: any, req: any, res: any, next: any) => {
+  if (err instanceof Error) {
+    if (err.message.includes('File too large')) {
+      return res.status(400).json({ error: 'File size exceeds 1MB limit' });
+    }
+    if (err.message.includes('Invalid file')) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
+  return res.status(400).json({ error: 'File upload failed' });
+};
+
+router.post('/profile', authenticate, upload.single('profileImage'), handleUploadError, uploadProfileImage);
+router.post('/products/:productId', authenticate, upload.array('productImages', 5), handleUploadError, uploadProductImages);
 router.delete('/products/:productId/images/:imageIndex', authenticate, deleteProductImage);
 
 export default router;

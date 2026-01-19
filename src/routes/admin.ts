@@ -6,20 +6,7 @@ import { UserRole } from '../models/User';
 
 const router = Router();
 
-/**
- * @swagger
- * /api/admin/users:
- *   get:
- *     tags: [Admin]
- *     summary: Get all users (Admin only)
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of users
- *       403:
- *         description: Forbidden
- */
+
 router.get('/users', authenticate, authorize(UserRole.ADMIN), getAllUsers);
 
 /**

@@ -3,8 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const cartController_1 = require("../controllers/cartController");
 const authenticate_1 = require("../middlewares/authenticate");
-const authorize_1 = require("../middlewares/authorize");
-const User_1 = require("../models/User");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -20,7 +18,7 @@ const router = (0, express_1.Router)();
  *       401:
  *         description: Unauthorized
  */
-router.get('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER, User_1.UserRole.ADMIN), cartController_1.getCart);
+router.get('/', authenticate_1.authenticate, cartController_1.getCart);
 /**
  * @swagger
  * /api/cart/items:
@@ -41,6 +39,8 @@ router.get('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.U
  *             properties:
  *               product:
  *                 type: string
+ *                 description: Product name or ObjectId
+ *                 example: "Phone Samsung Galaxy A70"
  *               quantity:
  *                 type: number
  *     responses:
@@ -49,7 +49,7 @@ router.get('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.U
  *       400:
  *         description: Invalid input
  */
-router.post('/items', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER, User_1.UserRole.ADMIN), cartController_1.addItem);
+router.post('/items', authenticate_1.authenticate, cartController_1.addItem);
 /**
  * @swagger
  * /api/cart/items/{id}:
@@ -81,7 +81,7 @@ router.post('/items', authenticate_1.authenticate, (0, authorize_1.authorize)(Us
  *       404:
  *         description: Item not found
  */
-router.put('/items/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER, User_1.UserRole.ADMIN), cartController_1.updateItem);
+router.put('/items/:id', authenticate_1.authenticate, cartController_1.updateItem);
 /**
  * @swagger
  * /api/cart/items/{id}:
@@ -102,7 +102,7 @@ router.put('/items/:id', authenticate_1.authenticate, (0, authorize_1.authorize)
  *       404:
  *         description: Item not found
  */
-router.delete('/items/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER, User_1.UserRole.ADMIN), cartController_1.removeItem);
+router.delete('/items/:id', authenticate_1.authenticate, cartController_1.removeItem);
 /**
  * @swagger
  * /api/cart:
@@ -117,5 +117,5 @@ router.delete('/items/:id', authenticate_1.authenticate, (0, authorize_1.authori
  *       404:
  *         description: Cart not found
  */
-router.delete('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER, User_1.UserRole.ADMIN), cartController_1.clearCart);
+router.delete('/', authenticate_1.authenticate, cartController_1.clearCart);
 exports.default = router;

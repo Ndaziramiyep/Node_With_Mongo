@@ -3,8 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const orderController_1 = require("../controllers/orderController");
 const authenticate_1 = require("../middlewares/authenticate");
-const authorize_1 = require("../middlewares/authorize");
-const User_1 = require("../models/User");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -15,23 +13,22 @@ const router = (0, express_1.Router)();
  *     security:
  *       - bearerAuth: []
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - shippingAddress
  *             properties:
  *               shippingAddress:
  *                 type: string
+ *                 description: Optional - uses saved address from profile if not provided
  *     responses:
  *       201:
  *         description: Order created successfully
  *       400:
- *         description: Cart is empty
+ *         description: Cart is empty or shipping address required
  */
-router.post('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER), orderController_1.createOrder);
+router.post('/', authenticate_1.authenticate, orderController_1.createOrder);
 /**
  * @swagger
  * /api/orders:
@@ -44,7 +41,7 @@ router.post('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.
  *       200:
  *         description: List of user orders
  */
-router.get('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER), orderController_1.getOrders);
+router.get('/', authenticate_1.authenticate, orderController_1.getOrders);
 /**
  * @swagger
  * /api/orders/{id}:
@@ -65,5 +62,5 @@ router.get('/', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.U
  *       404:
  *         description: Order not found
  */
-router.get('/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.CUSTOMER), orderController_1.getOrderById);
+router.get('/:id', authenticate_1.authenticate, orderController_1.getOrderById);
 exports.default = router;

@@ -22,6 +22,28 @@ const router = (0, express_1.Router)();
 router.get('/profile', authenticate_1.authenticate, users_controller_1.getProfile);
 /**
  * @swagger
+ * /api/users/profile:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update user profile
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               shippingAddress:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.put('/profile', authenticate_1.authenticate, users_controller_1.updateProfile);
+/**
+ * @swagger
  * /api/users/change-password:
  *   post:
  *     tags: [Users]

@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserRole = exports.getAllUsers = exports.logout = exports.changePassword = exports.getProfile = void 0;
+exports.updateProfile = exports.updateUserRole = exports.getAllUsers = exports.logout = exports.changePassword = exports.getProfile = void 0;
 const User_1 = __importStar(require("../models/User"));
 const getProfile = async (req, res) => {
     try {
@@ -96,3 +96,17 @@ const updateUserRole = async (req, res) => {
     }
 };
 exports.updateUserRole = updateUserRole;
+const updateProfile = async (req, res) => {
+    try {
+        const { shippingAddress } = req.body;
+        const user = await User_1.default.findByIdAndUpdate(req.userId, { shippingAddress }, { new: true }).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ message: 'Profile updated successfully', user });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Failed to update profile' });
+    }
+};
+exports.updateProfile = updateProfile;

@@ -60,7 +60,7 @@ export const addItem = async (req: AuthRequest, res: Response) => {
     res.status(201).json(populatedCart);
   } catch (error) {
     console.error('Add item error:', error);
-    res.status(500).json({ error: 'Failed to add item', details: error.message });
+    res.status(500).json({ error: 'Failed to add item', details: (error as Error).message });
   }
 };
 

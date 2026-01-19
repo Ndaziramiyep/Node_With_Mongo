@@ -50,6 +50,7 @@ const userSchema = new mongoose_1.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
     isActive: { type: Boolean, default: true },
+    shippingAddress: { type: String },
     resetToken: String,
     resetTokenExpiry: Date
 }, { timestamps: true });

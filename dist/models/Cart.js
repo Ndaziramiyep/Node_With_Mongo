@@ -35,11 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const CartItemSchema = new mongoose_1.Schema({
-    product: { type: String, required: true },
+    product: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Product', required: true },
     quantity: { type: Number, required: true, min: 1 }
 });
 const CartSchema = new mongoose_1.Schema({
-    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     items: [CartItemSchema]
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('Cart', CartSchema, 'carts');

@@ -6,10 +6,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOrderById = exports.getOrders = exports.createOrder = void 0;
 const Order_1 = __importDefault(require("../models/Order"));
 const Cart_1 = __importDefault(require("../models/Cart"));
+const User_1 = __importDefault(require("../models/User"));
 const createOrder = async (req, res) => {
     try {
         const { shippingAddress } = req.body;
-        const cart = await Cart_1.default.findOne({ userId: req.userId }).populate('items.product');
+        let finalShippingAddress = shippingAddress;
+        if (!finalShippingAddress) {
+            const user = await User_1.default.findById(req.userId);
+            if (!user?.shippingAddress) {
+                return res.status(400).json({ message: 'Shipping address is required' });
+            }
+            finalShippingAddress = user.shippingAddress;
+        }
+        const cart = await Cart_1.default.findOne({ user: req.userId }).populate('items.product');
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Cart is empty' });
         }
@@ -30,9 +39,9 @@ const createOrder = async (req, res) => {
             user: req.userId,
             items: orderItems,
             totalAmount,
-            shippingAddress
+            shippingAddress: finalShippingAddress
         });
-        await Cart_1.default.findOneAndUpdate({ userId: req.userId }, { items: [] });
+        await Cart_1.default.findOneAndUpdate({ user: req.userId }, { items: [] });
         res.status(201).json({ message: 'Order created successfully', order });
     }
     catch (error) {

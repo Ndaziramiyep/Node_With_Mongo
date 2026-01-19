@@ -2,22 +2,22 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICartItem {
   _id?: string;
-  product: string;
+  product: mongoose.Types.ObjectId;
   quantity: number;
 }
 
 export interface ICart extends Document {
-  userId: string;
+  user: string;
   items: ICartItem[];
 }
 
 const CartItemSchema: Schema = new Schema({
-  product: { type: String, required: true },
+  product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
   quantity: { type: Number, required: true, min: 1 }
 });
 
 const CartSchema: Schema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   items: [CartItemSchema]
 }, { timestamps: true });
 

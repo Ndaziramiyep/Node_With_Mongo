@@ -19,7 +19,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       finalShippingAddress = user.shippingAddress;
     }
     
-    const cart = await Cart.findOne({ userId: req.userId }).populate('items.product');
+    const cart = await Cart.findOne({ user: req.userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
     }
@@ -46,7 +46,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       shippingAddress: finalShippingAddress
     });
 
-    await Cart.findOneAndUpdate({ userId: req.userId }, { items: [] });
+    await Cart.findOneAndUpdate({ user: req.userId }, { items: [] });
 
     res.status(201).json({ message: 'Order created successfully', order });
   } catch (error) {

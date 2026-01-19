@@ -4,9 +4,9 @@ import Cart from '../models/Cart';
 
 export const getCart = async (req: AuthRequest, res: Response) => {
   try {
-    let cart = await Cart.findOne({ userId: req.userId });
+    let cart = await Cart.findOne({ user: req.userId }).populate('items.product');
     if (!cart) {
-      cart = await Cart.create({ userId: req.userId, items: [] });
+      cart = await Cart.create({ user: req.userId, items: [] });
     }
     res.json(cart);
   } catch (error) {
@@ -22,10 +22,10 @@ export const addItem = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Valid product and quantity required' });
     }
     
-    let cart = await Cart.findOne({ userId: req.userId });
+    let cart = await Cart.findOne({ user: req.userId });
     
     if (!cart) {
-      cart = await Cart.create({ userId: req.userId, items: [{ product, quantity }] });
+      cart = await Cart.create({ user: req.userId, items: [{ product, quantity }] });
     } else {
       const existingItem = cart.items.find(item => item.product === product);
       if (existingItem) {
@@ -51,7 +51,7 @@ export const updateItem = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Valid quantity required' });
     }
     
-    const cart = await Cart.findOne({ userId: req.userId });
+    const cart = await Cart.findOne({ user: req.userId });
     if (!cart) {
       return res.status(404).json({ error: 'Cart not found' });
     }
@@ -74,7 +74,7 @@ export const removeItem = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     
-    const cart = await Cart.findOne({ userId: req.userId });
+    const cart = await Cart.findOne({ user: req.userId });
     if (!cart) {
       return res.status(404).json({ error: 'Cart not found' });
     }
@@ -90,7 +90,7 @@ export const removeItem = async (req: AuthRequest, res: Response) => {
 
 export const clearCart = async (req: AuthRequest, res: Response) => {
   try {
-    const cart = await Cart.findOneAndDelete({ userId: req.userId });
+    const cart = await Cart.findOneAndUpdate({ user: req.userId }, { items: [] });
     if (!cart) {
       return res.status(404).json({ error: 'Cart not found' });
     }

@@ -15,21 +15,20 @@ const router = Router();
  *     security:
  *       - bearerAuth: []
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - shippingAddress
  *             properties:
  *               shippingAddress:
  *                 type: string
+ *                 description: Optional - uses saved address from profile if not provided
  *     responses:
  *       201:
  *         description: Order created successfully
  *       400:
- *         description: Cart is empty
+ *         description: Cart is empty or shipping address required
  */
 router.post('/', authenticate, authorize(UserRole.CUSTOMER), createOrder);
 

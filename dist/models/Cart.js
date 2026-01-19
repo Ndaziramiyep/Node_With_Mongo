@@ -39,7 +39,7 @@ const CartItemSchema = new mongoose_1.Schema({
     quantity: { type: Number, required: true, min: 1 }
 });
 const CartSchema = new mongoose_1.Schema({
-    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     items: [CartItemSchema]
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('Cart', CartSchema, 'carts');

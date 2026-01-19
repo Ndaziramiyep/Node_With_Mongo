@@ -113,6 +113,12 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ error: 'You can only delete your own products' });
     }
     
+    // Delete associated images
+    if (product.images && product.images.length > 0) {
+      const { deleteFile } = await import('../config/upload');
+      product.images.forEach(imagePath => deleteFile(imagePath));
+    }
+    
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {

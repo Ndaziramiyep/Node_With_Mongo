@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile, changePassword, logout, getAllUsers, updateUserRole, updateProfile } from '../controllers/users.controller';
+import { getProfile, changePassword, logout, deleteProfile, getAllUsers, updateUserRole, updateProfile } from '../controllers/users.controller';
 import { authenticate } from '../middlewares/authenticate';
 import { adminAuth } from '../middlewares/adminAuth';
 
@@ -86,6 +86,8 @@ router.post('/change-password', authenticate, changePassword);
  *       200:
  *         description: Logged out successfully
  */
+router.delete('/profile', authenticate, deleteProfile);
+
 router.post('/logout', authenticate, logout);
 
 /**

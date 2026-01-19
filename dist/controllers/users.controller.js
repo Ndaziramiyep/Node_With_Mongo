@@ -33,8 +33,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.updateUserRole = exports.getAllUsers = exports.logout = exports.changePassword = exports.getProfile = void 0;
+exports.updateProfile = exports.deleteProfile = exports.updateUserRole = exports.getAllUsers = exports.logout = exports.changePassword = exports.getProfile = void 0;
 const User_1 = __importStar(require("../models/User"));
+const upload_1 = require("../config/upload");
 const getProfile = async (req, res) => {
     try {
         const user = await User_1.default.findById(req.userId).select('-password');
@@ -96,6 +97,23 @@ const updateUserRole = async (req, res) => {
     }
 };
 exports.updateUserRole = updateUserRole;
+const deleteProfile = async (req, res) => {
+    try {
+        const user = await User_1.default.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (user.profileImage) {
+            (0, upload_1.deleteFile)(user.profileImage);
+        }
+        await User_1.default.findByIdAndDelete(req.userId);
+        res.json({ message: 'Profile deleted successfully' });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Failed to delete profile' });
+    }
+};
+exports.deleteProfile = deleteProfile;
 const updateProfile = async (req, res) => {
     try {
         const { shippingAddress } = req.body;

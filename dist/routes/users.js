@@ -83,6 +83,7 @@ router.post('/change-password', authenticate_1.authenticate, users_controller_1.
  *       200:
  *         description: Logged out successfully
  */
+router.delete('/profile', authenticate_1.authenticate, users_controller_1.deleteProfile);
 router.post('/logout', authenticate_1.authenticate, users_controller_1.logout);
 /**
  * @swagger

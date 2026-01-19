@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/authenticate';
 import User, { UserRole } from '../models/User';
+import { deleteFile } from '../config/upload';
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
@@ -67,6 +68,24 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
     res.json({ message: 'User role updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update user role' });
+  }
+};
+
+export const deleteProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.profileImage) {
+      deleteFile(user.profileImage);
+    }
+
+    await User.findByIdAndDelete(req.userId);
+    res.json({ message: 'Profile deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete profile' });
   }
 };
 

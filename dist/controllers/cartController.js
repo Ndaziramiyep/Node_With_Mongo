@@ -22,6 +22,9 @@ exports.getCart = getCart;
 const addItem = async (req, res) => {
     try {
         const { product, quantity } = req.body;
+        if (!req.userId) {
+            return res.status(401).json({ error: 'User authentication required' });
+        }
         if (!product || !quantity || quantity < 1) {
             return res.status(400).json({ error: 'Valid product and quantity required' });
         }

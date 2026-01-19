@@ -5,6 +5,7 @@ export interface IProduct extends Document {
   price: number;
   description?: string;
   category: string;
+  images?: string[];
   inStock: boolean;
   quantity: number;
   vendorId: string;
@@ -15,6 +16,7 @@ const ProductSchema: Schema = new Schema({
   price: { type: Number, required: true, min: 0 },
   description: { type: String },
   category: { type: String, required: true },
+  images: [{ type: String }],
   inStock: { type: Boolean, required: true, default: true },
   quantity: { type: Number, required: true, default: 0, min: 0 },
   vendorId: { type: String, required: true }

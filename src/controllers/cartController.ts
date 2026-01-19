@@ -27,11 +27,19 @@ export const addItem = async (req: AuthRequest, res: Response) => {
     
     // If product is not a valid ObjectId, try to find by name
     if (!/^[0-9a-fA-F]{24}$/.test(product)) {
-      const foundProduct = await Product.findOne({ name: { $regex: product, $options: 'i' } });
+      const foundProduct = await Product.findOne({ 
+        name: { $regex: new RegExp(product, 'i') } 
+      });
+      if (!foundProduct) {
+        return res.status(404).json({ error: `Product '${product}' not found` });
+      }
+      productId = foundProduct._id;
+    } else {
+      // Verify ObjectId exists
+      const foundProduct = await Product.findById(product);
       if (!foundProduct) {
         return res.status(404).json({ error: 'Product not found' });
       }
-      productId = foundProduct._id;
     }
     
     let cart = await Cart.findOne({ user: req.userId });
@@ -52,7 +60,7 @@ export const addItem = async (req: AuthRequest, res: Response) => {
     res.status(201).json(populatedCart);
   } catch (error) {
     console.error('Add item error:', error);
-    res.status(500).json({ error: 'Failed to add item' });
+    res.status(500).json({ error: 'Failed to add item', details: error.message });
   }
 };
 

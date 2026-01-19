@@ -25,10 +25,6 @@ const router = Router();
  *               password:
  *                 type: string
  *                 format: password
- *               role:
- *                 type: string
- *                 enum: [admin, vendor, customer]
- *                 default: customer
  *     responses:
  *       201:
  *         description: User registered successfully

@@ -30,7 +30,7 @@ const router = Router();
  *       400:
  *         description: Cart is empty or shipping address required
  */
-router.post('/', authenticate, authorize(UserRole.CUSTOMER), createOrder);
+router.post('/', authenticate, createOrder);
 
 /**
  * @swagger
@@ -44,7 +44,7 @@ router.post('/', authenticate, authorize(UserRole.CUSTOMER), createOrder);
  *       200:
  *         description: List of user orders
  */
-router.get('/', authenticate, authorize(UserRole.CUSTOMER), getOrders);
+router.get('/', authenticate, getOrders);
 
 /**
  * @swagger
@@ -66,6 +66,6 @@ router.get('/', authenticate, authorize(UserRole.CUSTOMER), getOrders);
  *       404:
  *         description: Order not found
  */
-router.get('/:id', authenticate, authorize(UserRole.CUSTOMER), getOrderById);
+router.get('/:id', authenticate, getOrderById);
 
 export default router;

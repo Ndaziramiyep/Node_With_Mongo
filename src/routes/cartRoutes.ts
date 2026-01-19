@@ -20,7 +20,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), getCart);
+router.get('/', authenticate, getCart);
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ router.get('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), getC
  *       400:
  *         description: Invalid input
  */
-router.post('/items', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), addItem);
+router.post('/items', authenticate, addItem);
 
 /**
  * @swagger
@@ -85,7 +85,7 @@ router.post('/items', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN)
  *       404:
  *         description: Item not found
  */
-router.put('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), updateItem);
+router.put('/items/:id', authenticate, updateItem);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ router.put('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADM
  *       404:
  *         description: Item not found
  */
-router.delete('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), removeItem);
+router.delete('/items/:id', authenticate, removeItem);
 
 /**
  * @swagger
@@ -123,6 +123,6 @@ router.delete('/items/:id', authenticate, authorize(UserRole.CUSTOMER, UserRole.
  *       404:
  *         description: Cart not found
  */
-router.delete('/', authenticate, authorize(UserRole.CUSTOMER, UserRole.ADMIN), clearCart);
+router.delete('/', authenticate, clearCart);
 
 export default router;

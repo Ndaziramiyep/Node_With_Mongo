@@ -27,12 +27,6 @@ npm install
 
 Create a `.env` file:
 
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/nodedb
-NODE_ENV=development
-JWT_SECRET=your_jwt_secret_key_change_in_production
-```
 
 ## Running the Application
 

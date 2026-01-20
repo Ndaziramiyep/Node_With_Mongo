@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, updateUser, deleteUser } from '../controllers/admin.controller';
+import { getAllUsers, updateUser, deleteUser, updateOrderStatus } from '../controllers/admin.controller';
 import { authenticate } from '../middlewares/authenticate';
 import { authorize } from '../middlewares/authorize';
 import { UserRole } from '../models/User';
@@ -77,5 +77,7 @@ router.put('/users/:id', authenticate, authorize(UserRole.ADMIN), updateUser);
  *         description: User not found
  */
 router.delete('/users/:id', authenticate, authorize(UserRole.ADMIN), deleteUser);
+
+router.put('/orders/:orderId/status', authenticate, authorize(UserRole.ADMIN), updateOrderStatus);
 
 export default router;

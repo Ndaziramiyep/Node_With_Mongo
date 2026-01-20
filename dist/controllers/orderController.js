@@ -7,6 +7,7 @@ exports.getOrderById = exports.getOrders = exports.createOrder = void 0;
 const Order_1 = __importDefault(require("../models/Order"));
 const Cart_1 = __importDefault(require("../models/Cart"));
 const User_1 = __importDefault(require("../models/User"));
+const emailService_1 = require("../services/emailService");
 const createOrder = async (req, res) => {
     try {
         const { shippingAddress } = req.body;
@@ -42,6 +43,16 @@ const createOrder = async (req, res) => {
             shippingAddress: finalShippingAddress
         });
         await Cart_1.default.findOneAndUpdate({ user: req.userId }, { items: [] });
+        // Send order placed email
+        const user = await User_1.default.findById(req.userId);
+        if (user) {
+            try {
+                await (0, emailService_1.sendOrderPlacedEmail)(user.email, order._id.toString());
+            }
+            catch (emailError) {
+                console.error('Failed to send order placed email:', emailError);
+            }
+        }
         res.status(201).json({ message: 'Order created successfully', order });
     }
     catch (error) {

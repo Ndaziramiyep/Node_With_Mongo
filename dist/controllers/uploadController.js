@@ -14,6 +14,7 @@ const uploadProfileImage = async (req, res) => {
         }
         const user = await User_1.default.findById(req.userId);
         if (!user) {
+            (0, upload_1.deleteFile)(req.file.path);
             return res.status(404).json({ error: 'User not found' });
         }
         if (user.profileImage) {
@@ -24,6 +25,8 @@ const uploadProfileImage = async (req, res) => {
         res.json({ message: 'Profile image uploaded', profileImage: user.profileImage });
     }
     catch (error) {
+        if (req.file)
+            (0, upload_1.deleteFile)(req.file.path);
         res.status(500).json({ error: 'Failed to upload profile image' });
     }
 };
@@ -37,6 +40,7 @@ const uploadProductImages = async (req, res) => {
         }
         const product = await Product_1.default.findById(productId);
         if (!product) {
+            files.forEach(file => (0, upload_1.deleteFile)(file.path));
             return res.status(404).json({ error: 'Product not found' });
         }
         const imagePaths = files.map(file => file.path);
@@ -45,6 +49,9 @@ const uploadProductImages = async (req, res) => {
         res.json({ message: 'Product images uploaded', images: product.images });
     }
     catch (error) {
+        if (req.files) {
+            req.files.forEach(file => (0, upload_1.deleteFile)(file.path));
+        }
         res.status(500).json({ error: 'Failed to upload product images' });
     }
 };

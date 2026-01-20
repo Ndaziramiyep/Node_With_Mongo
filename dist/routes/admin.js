@@ -75,4 +75,5 @@ router.put('/users/:id', authenticate_1.authenticate, (0, authorize_1.authorize)
  *         description: User not found
  */
 router.delete('/users/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.deleteUser);
+router.put('/orders/:orderId/status', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.updateOrderStatus);
 exports.default = router;

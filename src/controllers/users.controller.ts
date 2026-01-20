@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/authenticate';
 import User, { UserRole } from '../models/User';
 import { deleteFile } from '../config/upload';
+import { sendPasswordChangedEmail } from '../services/emailService';
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
@@ -26,6 +27,13 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     user.password = newPassword;
     await user.save();
+
+    // Send password changed email
+    try {
+      await sendPasswordChangedEmail(user.email);
+    } catch (emailError) {
+      console.error('Failed to send password changed email:', emailError);
+    }
 
     res.json({ message: 'Password changed successfully' });
   } catch (error) {

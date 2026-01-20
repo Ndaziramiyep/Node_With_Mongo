@@ -7,6 +7,7 @@ exports.resetPassword = exports.forgotPassword = exports.login = exports.registe
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const User_1 = __importDefault(require("../models/User"));
+const emailService_1 = require("../services/emailService");
 const register = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -16,6 +17,13 @@ const register = async (req, res) => {
         }
         const user = await User_1.default.create({ email, password });
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+        // Send welcome email
+        try {
+            await (0, emailService_1.sendWelcomeEmail)(email);
+        }
+        catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+        }
         res.status(201).json({
             token,
             user: {
@@ -68,7 +76,14 @@ const forgotPassword = async (req, res) => {
         user.resetToken = resetToken;
         user.resetTokenExpiry = new Date(Date.now() + 3600000);
         await user.save();
-        res.json({ message: 'Reset token generated', resetToken });
+        // Send password reset email
+        try {
+            await (0, emailService_1.sendPasswordResetEmail)(email, resetToken);
+        }
+        catch (emailError) {
+            console.error('Failed to send reset email:', emailError);
+        }
+        res.json({ message: 'Reset token generated and email sent' });
     }
     catch (error) {
         res.status(500).json({ message: 'Failed to process request' });

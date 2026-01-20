@@ -1,13 +1,15 @@
 # Node_With_Mongo
-Node.js REST API with MongoDB, TypeScript, and JWT Authentication
+Node.js REST API with MongoDB, TypeScript, JWT Authentication, File Upload, and Email Notifications
 
 ## Features
 - User authentication with JWT
 - Role-based access control (Admin, Vendor, Customer)
-- Category management (Admin only)
-- Product management (Admin and Vendor)
-- Shopping cart functionality (Customers)
-- Order management (Customers)
+- Category management
+- Product management with image uploads
+- Shopping cart functionality
+- Order management with status tracking
+- File upload system (profile images, product images)
+- Email notification system
 - Password reset and management
 - Admin user management
 
@@ -18,6 +20,8 @@ Node.js REST API with MongoDB, TypeScript, and JWT Authentication
 - MongoDB with Mongoose
 - JWT for authentication
 - bcryptjs for password hashing
+- Multer for file uploads
+- Nodemailer for email notifications
 
 ## Installation
 
@@ -29,6 +33,16 @@ npm install
 
 Create a `.env` file:
 
+```env
+PORT=3000
+MONGODB_URI=your_mongodb_connection_string
+NODE_ENV=development
+JWT_SECRET=your_jwt_secret_key
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=admin_password
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_email_password
+```
 
 ## Running the Application
 
@@ -41,9 +55,6 @@ npm run build
 
 # Production
 npm start
-
-# Create first admin user (run once)
-npm run create-admin
 ```
 
 ## API Documentation
@@ -88,7 +99,7 @@ POST /api/auth/reset-password
 Content-Type: application/json
 
 {
-  "resetToken": "token_from_forgot_password",
+  "resetToken": "token_from_email",
   "newPassword": "newpassword123"
 }
 ```
@@ -113,29 +124,44 @@ Content-Type: application/json
 }
 ```
 
+#### Delete Profile
+```http
+DELETE /api/users/profile
+Authorization: Bearer <token>
+```
+
 #### Logout
 ```http
 POST /api/users/logout
 Authorization: Bearer <token>
 ```
 
-### Admin User Management (Admin Only)
+### File Upload (Protected)
 
-#### Get All Users
+#### Upload Profile Image
 ```http
-GET /api/users
-Authorization: Bearer <admin_token>
+POST /api/upload/profile
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+Form Data:
+profileImage: [image file]
 ```
 
-#### Update User Role
+#### Upload Product Images
 ```http
-PUT /api/users/:userId/role
-Authorization: Bearer <admin_token>
-Content-Type: application/json
+POST /api/upload/products/:productId
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
 
-{
-  "role": "vendor" // or "customer" or "admin"
-}
+Form Data:
+productImages: [image files] (max 5)
+```
+
+#### Delete Product Image
+```http
+DELETE /api/upload/products/:productId/images/:imageIndex
+Authorization: Bearer <token>
 ```
 
 ### Categories
@@ -270,7 +296,7 @@ DELETE /api/cart
 Authorization: Bearer <token>
 ```
 
-### Orders (Customer Only)
+### Orders (Protected)
 
 #### Create Order
 ```http
@@ -295,20 +321,52 @@ GET /api/orders/:id
 Authorization: Bearer <token>
 ```
 
+### Admin Routes (Admin Only)
+
+#### Update Order Status
+```http
+PUT /api/admin/orders/:orderId/status
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+```
+
+## File Upload Features
+- **Allowed Types**: JPEG, JPG, PNG, GIF, WebP
+- **Size Limit**: 1MB per file
+- **Profile Images**: Single image per user
+- **Product Images**: Up to 5 images per product
+- **Auto Cleanup**: Files deleted when resources are removed
+- **Static Serving**: Images accessible via `/uploads` endpoint
+
+## Email Notifications
+- **Welcome Email**: Sent on user registration
+- **Password Reset**: Sent with reset token
+- **Password Changed**: Security notification
+- **Order Placed**: Order confirmation
+- **Order Status**: Updates on status changes (confirmed, shipped, delivered, cancelled)
+
 ## Project Structure
 
 ```
 src/
 ├── config/
-│   └── database.ts          # MongoDB connection
+│   ├── database.ts          # MongoDB connection
+│   └── upload.ts            # Multer configuration
 ├── controllers/
 │   ├── auth.controller.ts   # Authentication logic
 │   ├── users.controller.ts  # User management
+│   ├── admin.controller.ts  # Admin operations
 │   ├── categoryController.ts
 │   ├── productController.ts
-│   └── cartController.ts
+│   ├── cartController.ts
+│   ├── orderController.ts
+│   └── uploadController.ts  # File upload handling
 ├── middlewares/
-│   └── authenticate.ts      # JWT authentication middleware
+│   └── authenticate.ts       # JWT authentication middleware
 ├── models/
 │   ├── User.ts
 │   ├── Category.ts
@@ -318,10 +376,14 @@ src/
 ├── routes/
 │   ├── auth.ts
 │   ├── users.ts
+│   ├── admin.ts
 │   ├── categoryRoutes.ts
 │   ├── productRoutes.ts
 │   ├── cartRoutes.ts
-│   └── orderRoutes.ts
+│   ├── orderRoutes.ts
+│   └── uploadRoutes.ts
+├── services/
+│   └── emailService.ts      # Email notification service
 ├── app.ts                   # Express app setup
 └── index.ts                 # Server entry point
 ```
@@ -332,25 +394,15 @@ src/
 - Protected routes with authentication middleware
 - Token expiration (7 days)
 - Password reset with time-limited tokens
-- User-specific cart operations
+- User-specific cart and order operations
+- File type and size validation
+- Role-based access control
 
 ## Access Control
 - **Public**: View categories and products
-- **Customer**: Default role for new registrations, access cart and order operations
-- **Vendor**: Create, update, delete products (admin assigned)
-- **Admin**: Full access to all operations including user role management
-
-## Initial Setup
-1. Run `npm run create-admin` to create the first admin user
-2. Users register automatically as customers
-3. Admins can promote customers to vendors if needed
-4. Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables (optional)
-
-# Project documentation Here, http://localhost:3000/api-docs
-
- Project online documentation Here, <a href="https://node-with-mongo-p4vc.onrender.com/api-docs"> Live Project Docs</a>
-
-
+- **Customer**: Default role, access cart and order operations
+- **Vendor**: Create, update, delete own products
+- **Admin**: Full access including user management and order status updates
 
 ## License
-Patrick
+MIT

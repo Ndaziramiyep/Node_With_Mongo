@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateProfile = exports.deleteProfile = exports.updateUserRole = exports.getAllUsers = exports.logout = exports.changePassword = exports.getProfile = void 0;
 const User_1 = __importStar(require("../models/User"));
 const upload_1 = require("../config/upload");
+const emailService_1 = require("../services/emailService");
 const getProfile = async (req, res) => {
     try {
         const user = await User_1.default.findById(req.userId).select('-password');
@@ -58,6 +59,13 @@ const changePassword = async (req, res) => {
         }
         user.password = newPassword;
         await user.save();
+        // Send password changed email
+        try {
+            await (0, emailService_1.sendPasswordChangedEmail)(user.email);
+        }
+        catch (emailError) {
+            console.error('Failed to send password changed email:', emailError);
+        }
         res.json({ message: 'Password changed successfully' });
     }
     catch (error) {

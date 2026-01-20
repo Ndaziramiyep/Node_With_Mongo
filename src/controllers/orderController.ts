@@ -4,6 +4,7 @@ import Order, { OrderStatus } from '../models/Order';
 import Cart from '../models/Cart';
 import Product from '../models/Product';
 import User from '../models/User';
+import { sendOrderPlacedEmail, sendOrderStatusEmail } from '../services/emailService';
 
 export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
@@ -47,6 +48,16 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
     });
 
     await Cart.findOneAndUpdate({ user: req.userId }, { items: [] });
+
+    // Send order placed email
+    const user = await User.findById(req.userId);
+    if (user) {
+      try {
+        await sendOrderPlacedEmail(user.email, order._id.toString());
+      } catch (emailError) {
+        console.error('Failed to send order placed email:', emailError);
+      }
+    }
 
     res.status(201).json({ message: 'Order created successfully', order });
   } catch (error) {

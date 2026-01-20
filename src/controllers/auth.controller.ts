@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/User';
+import { sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -14,6 +15,13 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await User.create({ email, password });
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+    
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(email);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+    }
     
     res.status(201).json({ 
       token, 
@@ -72,7 +80,14 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.resetTokenExpiry = new Date(Date.now() + 3600000);
     await user.save();
 
-    res.json({ message: 'Reset token generated', resetToken });
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+    } catch (emailError) {
+      console.error('Failed to send reset email:', emailError);
+    }
+
+    res.json({ message: 'Reset token generated and email sent' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to process request' });
   }

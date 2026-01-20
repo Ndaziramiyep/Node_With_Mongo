@@ -10,4 +10,4 @@ export const testEmail = async () => {
 };
 
 // Uncomment to test email functionality
-// testEmail();
+testEmail();

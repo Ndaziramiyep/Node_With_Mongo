@@ -12,6 +12,9 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
   isActive: boolean;
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationExpiry?: Date;
   profileImage?: string;
   shippingAddress?: string;
   resetToken?: string;
@@ -24,6 +27,9 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
   role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
   isActive: { type: Boolean, default: true },
+  isEmailVerified: { type: Boolean, default: false },
+  emailVerificationToken: String,
+  emailVerificationExpiry: Date,
   profileImage: { type: String },
   shippingAddress: { type: String },
   resetToken: String,

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, forgotPassword, resetPassword } from '../controllers/auth.controller';
+import { register, login, forgotPassword, resetPassword, verifyEmail } from '../controllers/auth.controller';
 
 const router = Router();
 
@@ -33,32 +33,8 @@ const router = Router();
  */
 router.post('/register', register);
 
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     tags: [Authentication]
- *     summary: Login user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- *       401:
- *         description: Invalid credentials
- */
+router.post('/verify-email', verifyEmail);
+
 router.post('/login', login);
 
 /**

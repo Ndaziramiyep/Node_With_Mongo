@@ -10,27 +10,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export const sendVerificationEmail = async (email: string, verificationToken: string) => {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
-  
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Verify Your Email - Node With Mongo',
-    html: `
-      <h2>Email Verification Required</h2>
-      <p>Thank you for registering with Node With Mongo!</p>
-      <p>Please click the link below to verify your email address:</p>
-      <a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-      <p>Or copy and paste this link in your browser:</p>
-      <p>${verificationUrl}</p>
-      <p>This link will expire in 24 hours.</p>
-    `
-  };
-  
-  await transporter.sendMail(mailOptions);
-};
-
 export const sendWelcomeEmail = async (email: string) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,

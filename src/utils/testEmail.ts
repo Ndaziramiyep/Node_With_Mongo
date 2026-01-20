@@ -1,8 +1,8 @@
-import { sendVerificationEmail } from '../services/emailService';
+import { sendWelcomeEmail } from '../services/emailService';
 
 export const testEmail = async () => {
   try {
-    await sendVerificationEmail('test@example.com', 'test-token-123');
+    await sendWelcomeEmail('test@example.com');
     console.log('Test email sent successfully');
   } catch (error) {
     console.error('Test email failed:', error);
@@ -10,4 +10,4 @@ export const testEmail = async () => {
 };
 
 // Uncomment to test email functionality
-testEmail();
+// testEmail();

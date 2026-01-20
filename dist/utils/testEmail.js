@@ -4,7 +4,7 @@ exports.testEmail = void 0;
 const emailService_1 = require("../services/emailService");
 const testEmail = async () => {
     try {
-        await (0, emailService_1.sendVerificationEmail)('test@example.com', 'test-token-123');
+        await (0, emailService_1.sendWelcomeEmail)('test@example.com');
         console.log('Test email sent successfully');
     }
     catch (error) {

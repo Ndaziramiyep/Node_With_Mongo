@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const app_1 = __importDefault(require("./app"));
 const database_1 = require("./config/database");
+require("./utils/testEmail");
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 const startServer = async () => {

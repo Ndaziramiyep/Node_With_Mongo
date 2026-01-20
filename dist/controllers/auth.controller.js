@@ -16,7 +16,7 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
         const user = await User_1.default.create({ email, password });
-        const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+        const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
         // Send welcome email
         try {
             await (0, emailService_1.sendWelcomeEmail)(email);

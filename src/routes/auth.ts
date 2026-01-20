@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, forgotPassword, resetPassword, verifyEmail } from '../controllers/auth.controller';
+import { register, login, forgotPassword, resetPassword } from '../controllers/auth.controller';
 
 const router = Router();
 
@@ -32,8 +32,6 @@ const router = Router();
  *         description: User already exists
  */
 router.post('/register', register);
-
-router.post('/verify-email', verifyEmail);
 
 router.post('/login', login);
 

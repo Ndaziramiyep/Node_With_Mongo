@@ -32,32 +32,6 @@ const router = (0, express_1.Router)();
  *         description: User already exists
  */
 router.post('/register', auth_controller_1.register);
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     tags: [Authentication]
- *     summary: Login user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- *       401:
- *         description: Invalid credentials
- */
 router.post('/login', auth_controller_1.login);
 /**
  * @swagger

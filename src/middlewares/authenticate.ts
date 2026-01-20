@@ -31,10 +31,6 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     if (!user.isActive) {
       return res.status(403).json({ message: 'Account is deactivated' });
     }
-    
-    if (!user.isEmailVerified) {
-      return res.status(403).json({ message: 'Please verify your email before accessing protected resources' });
-    }
 
     req.userId = user._id.toString();
     req.userRole = user.role;

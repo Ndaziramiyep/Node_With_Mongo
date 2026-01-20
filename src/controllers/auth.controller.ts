@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/User';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
+import { sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -13,63 +13,27 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-    const user = await User.create({ 
-      email, 
-      password,
-      emailVerificationToken,
-      emailVerificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-    });
+    const user = await User.create({ email, password });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
     
-    // Send verification email
+    // Send welcome email
     try {
-      await sendVerificationEmail(email, emailVerificationToken);
+      await sendWelcomeEmail(email);
     } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
+      console.error('Failed to send welcome email:', emailError);
     }
     
     res.status(201).json({ 
-      message: 'Registration successful. Please check your email to verify your account.',
-      user: { id: user._id, email: user.email, role: user.role, isEmailVerified: user.isEmailVerified }
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Registration failed' });
-  }
-};
-
-export const verifyEmail = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.body;
-    
-    const user = await User.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpiry: { $gt: new Date() }
-    });
-    
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token' });
-    }
-    
-    user.isEmailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpiry = undefined;
-    await user.save();
-    
-    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-    
-    res.json({ 
-      message: 'Email verified successfully',
-      token: jwtToken,
+      token,
       user: { 
         id: user._id, 
         email: user.email, 
         role: user.role,
-        isActive: user.isActive,
-        isEmailVerified: user.isEmailVerified
+        isActive: user.isActive
       } 
     });
   } catch (error) {
-    res.status(500).json({ message: 'Email verification failed' });
+    res.status(500).json({ message: 'Registration failed' });
   }
 };
 
@@ -85,10 +49,6 @@ export const login = async (req: Request, res: Response) => {
     if (!user.isActive) {
       return res.status(403).json({ message: 'Account is deactivated' });
     }
-    
-    if (!user.isEmailVerified) {
-      return res.status(403).json({ message: 'Please verify your email before logging in' });
-    }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
     
@@ -98,8 +58,7 @@ export const login = async (req: Request, res: Response) => {
         id: user._id, 
         email: user.email, 
         role: user.role,
-        isActive: user.isActive,
-        isEmailVerified: user.isEmailVerified
+        isActive: user.isActive
       } 
     });
   } catch (error) {

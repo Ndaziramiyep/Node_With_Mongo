@@ -19,7 +19,9 @@ const register = async (req, res) => {
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
         // Send welcome email
         try {
+            console.log('Attempting to send welcome email to:', email);
             await (0, emailService_1.sendWelcomeEmail)(email);
+            console.log('Welcome email sent successfully');
         }
         catch (emailError) {
             console.error('Failed to send welcome email:', emailError);

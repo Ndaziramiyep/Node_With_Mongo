@@ -11,18 +11,25 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendWelcomeEmail = async (email: string) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Welcome to Node With Mongo!',
-    html: `
-      <h2>Welcome!</h2>
-      <p>Thank you for registering with Node With Mongo.</p>
-      <p>You can now start shopping and managing your account.</p>
-    `
-  };
-  
-  await transporter.sendMail(mailOptions);
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Welcome to Node With Mongo!',
+      html: `
+        <h2>Welcome!</h2>
+        <p>Thank you for registering with Node With Mongo.</p>
+        <p>You can now start shopping and managing your account.</p>
+      `
+    };
+    
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent successfully:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
+    throw error;
+  }
 };
 
 export const sendPasswordResetEmail = async (email: string, resetToken: string) => {

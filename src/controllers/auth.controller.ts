@@ -18,7 +18,9 @@ export const register = async (req: Request, res: Response) => {
     
     // Send welcome email
     try {
+      console.log('Attempting to send welcome email to:', email);
       await sendWelcomeEmail(email);
+      console.log('Welcome email sent successfully');
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
     }

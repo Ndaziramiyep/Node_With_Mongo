@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const admin_controller_1 = require("../controllers/admin.controller");
-const authenticate_1 = require("../middlewares/authenticate");
+const adminAuth_1 = require("../middlewares/adminAuth");
 const authorize_1 = require("../middlewares/authorize");
 const User_1 = require("../models/User");
 const router = (0, express_1.Router)();
@@ -20,7 +20,7 @@ const router = (0, express_1.Router)();
  *       403:
  *         description: Forbidden
  */
-router.get('/users', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.getAllUsers);
+router.get('/users', adminAuth_1.adminAuth, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.getAllUsers);
 /**
  * @swagger
  * /api/admin/users/{id}:
@@ -53,7 +53,7 @@ router.get('/users', authenticate_1.authenticate, (0, authorize_1.authorize)(Use
  *       404:
  *         description: User not found
  */
-router.put('/users/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.updateUser);
+router.put('/users/:id', adminAuth_1.adminAuth, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.updateUser);
 /**
  * @swagger
  * /api/admin/users/{id}:
@@ -74,6 +74,6 @@ router.put('/users/:id', authenticate_1.authenticate, (0, authorize_1.authorize)
  *       404:
  *         description: User not found
  */
-router.delete('/users/:id', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.deleteUser);
-router.put('/orders/:orderId/status', authenticate_1.authenticate, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.updateOrderStatus);
+router.delete('/users/:id', adminAuth_1.adminAuth, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.deleteUser);
+router.put('/orders/:orderId/status', adminAuth_1.adminAuth, (0, authorize_1.authorize)(User_1.UserRole.ADMIN), admin_controller_1.updateOrderStatus);
 exports.default = router;

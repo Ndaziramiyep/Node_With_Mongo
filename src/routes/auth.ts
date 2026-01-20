@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, forgotPassword, resetPassword, verifyEmail } from '../controllers/auth.controller';
+import { register, login, forgotPassword, resetPassword } from '../controllers/auth.controller';
 
 const router = Router();
 
@@ -60,8 +60,6 @@ router.post('/register', register);
  *         description: Invalid credentials
  */
 router.post('/login', login);
-
-router.post('/verify-email', verifyEmail);
 
 /**
  * @swagger

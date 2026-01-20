@@ -37,42 +37,6 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const verifyEmail = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.body;
-    
-    const user = await User.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpiry: { $gt: new Date() }
-    });
-    
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token' });
-    }
-    
-    user.isEmailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpiry = undefined;
-    await user.save();
-    
-    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-    
-    res.json({ 
-      message: 'Email verified successfully',
-      token: jwtToken,
-      user: { 
-        id: user._id, 
-        email: user.email, 
-        role: user.role,
-        isActive: user.isActive,
-        isEmailVerified: user.isEmailVerified
-      } 
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Email verification failed' });
-  }
-};
-
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

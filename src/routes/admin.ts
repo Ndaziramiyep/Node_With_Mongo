@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getAllUsers, updateUser, deleteUser, updateOrderStatus } from '../controllers/admin.controller';
-import { authenticate } from '../middlewares/authenticate';
+import { adminAuth } from '../middlewares/adminAuth';
 import { authorize } from '../middlewares/authorize';
 import { UserRole } from '../models/User';
 
@@ -20,7 +20,7 @@ const router = Router();
  *       403:
  *         description: Forbidden
  */
-router.get('/users', authenticate, authorize(UserRole.ADMIN), getAllUsers);
+router.get('/users', adminAuth, authorize(UserRole.ADMIN), getAllUsers);
 
 /**
  * @swagger
@@ -54,7 +54,7 @@ router.get('/users', authenticate, authorize(UserRole.ADMIN), getAllUsers);
  *       404:
  *         description: User not found
  */
-router.put('/users/:id', authenticate, authorize(UserRole.ADMIN), updateUser);
+router.put('/users/:id', adminAuth, authorize(UserRole.ADMIN), updateUser);
 
 /**
  * @swagger
@@ -76,8 +76,8 @@ router.put('/users/:id', authenticate, authorize(UserRole.ADMIN), updateUser);
  *       404:
  *         description: User not found
  */
-router.delete('/users/:id', authenticate, authorize(UserRole.ADMIN), deleteUser);
+router.delete('/users/:id', adminAuth, authorize(UserRole.ADMIN), deleteUser);
 
-router.put('/orders/:orderId/status', authenticate, authorize(UserRole.ADMIN), updateOrderStatus);
+router.put('/orders/:orderId/status', adminAuth, authorize(UserRole.ADMIN), updateOrderStatus);
 
 export default router;

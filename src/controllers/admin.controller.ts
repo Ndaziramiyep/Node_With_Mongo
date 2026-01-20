@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthRequest } from '../middlewares/authenticate';
+import { AuthRequest } from '../middlewares/adminAuth';
 import User from '../models/User';
 import Order from '../models/Order';
 import { sendOrderStatusEmail } from '../services/emailService';

@@ -15,10 +15,10 @@ export const sendWelcomeEmail = async (email: string) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Welcome to Node With Mongo!',
+      subject: 'Welcome to Patrick\'s Project!',
       html: `
-        <h2>Welcome!</h2>
-        <p>Thank you for registering with Node With Mongo.</p>
+        <h2>Thank you for your registration to Patrick's Project!</h2>
+        <p>Welcome to our platform.</p>
         <p>You can now start shopping and managing your account.</p>
       `
     };

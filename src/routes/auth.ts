@@ -33,8 +33,6 @@ const router = Router();
  */
 router.post('/register', register);
 
-router.post('/verify-email', verifyEmail);
-
 /**
  * @swagger
  * /api/auth/login:
@@ -62,6 +60,8 @@ router.post('/verify-email', verifyEmail);
  *         description: Invalid credentials
  */
 router.post('/login', login);
+
+router.post('/verify-email', verifyEmail);
 
 /**
  * @swagger

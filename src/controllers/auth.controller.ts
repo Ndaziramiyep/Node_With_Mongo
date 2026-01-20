@@ -17,16 +17,22 @@ export const register = async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
     
     // Send welcome email
+    let emailStatus = 'Email sent successfully';
+    let emailError = null;
     try {
       console.log('Attempting to send welcome email to:', email);
       await sendWelcomeEmail(email);
       console.log('Welcome email sent successfully');
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
+    } catch (error) {
+      console.error('Failed to send welcome email:', error);
+      emailStatus = 'Email failed to send';
+      emailError = error instanceof Error ? error.message : 'Unknown email error';
     }
     
     res.status(201).json({ 
       token,
+      emailStatus,
+      emailError,
       user: { 
         id: user._id, 
         email: user.email, 

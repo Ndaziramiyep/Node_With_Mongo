@@ -49,7 +49,27 @@ export const addItem = async (req: AuthRequest, res: Response) => {
     let cart = await Cart.findOne({ user: req.userId });
     
     if (!cart) {
-      cart = await Cart.create({ user: req.userId, items: [{ product: productId, quantity }] });
+      try {
+        cart = await Cart.create({ user: req.userId, items: [{ product: productId, quantity }] });
+      } catch (createError: any) {
+        if (createError.code === 11000) {
+          // Duplicate key error, try to find existing cart
+          cart = await Cart.findOne({ user: req.userId });
+          if (cart) {
+            const existingItem = cart.items.find(item => item.product.toString() === productId.toString());
+            if (existingItem) {
+              existingItem.quantity += quantity;
+            } else {
+              cart.items.push({ product: productId, quantity });
+            }
+            await cart.save();
+          } else {
+            throw createError;
+          }
+        } else {
+          throw createError;
+        }
+      }
     } else {
       const existingItem = cart.items.find(item => item.product.toString() === productId.toString());
       if (existingItem) {
